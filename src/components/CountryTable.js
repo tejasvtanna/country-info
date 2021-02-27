@@ -3,8 +3,9 @@ import axios from 'axios'
 import { DataGrid } from '@material-ui/data-grid'
 
 const CountryTable = () => {
-    const [countryData, setCountryData] = useState([])
-    const [filterCountry, setFilterCountry] = useState('')
+    const [allCountryData, setAllCountryData] = useState([])
+    const [filteredData, setFilteredData] = useState([])
+    const [countryFilter, setCountryFilter] = useState('')
 
     const columns = [
         { field: 'name', headerName: 'Name', width: 130 },
@@ -26,17 +27,20 @@ const CountryTable = () => {
                 domains: obj.topLevelDomain.join(', '),
                 borders: obj.borders.join(', '),
             }))
-            setCountryData(dataRequired)
+            setAllCountryData(dataRequired)
         }
 
         fetchCountryData()
     }, [])
 
-    const rows = countryData.filter(
-        (obj, index) =>
-            !filterCountry ||
-            obj.name.toLowerCase().indexOf(filterCountry.toLowerCase()) > -1
-    )
+    useEffect(() => {
+        const rows = allCountryData.filter(
+            (obj, index) =>
+                !countryFilter ||
+                obj.name.toLowerCase().indexOf(countryFilter.toLowerCase()) > -1
+        )
+        setFilteredData(rows)
+    }, [allCountryData, countryFilter])
 
     return (
         <div>
@@ -44,13 +48,13 @@ const CountryTable = () => {
                 <span>Filter by Country:</span>
                 <input
                     type="text"
-                    value={filterCountry}
-                    onChange={(e) => setFilterCountry(e.target.value)}
+                    value={countryFilter}
+                    onChange={(e) => setCountryFilter(e.target.value)}
                 />
             </div>
             <br />
             <div style={{ height: 700, width: '100%' }}>
-                <DataGrid rows={rows} columns={columns} pageSize={50} />
+                <DataGrid rows={filteredData} columns={columns} pageSize={50} />
             </div>
         </div>
     )
